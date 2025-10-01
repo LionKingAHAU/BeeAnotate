@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ _('app.title') }}</title>
+    
+    <!-- Bootstrap CSS (本地) -->
+    <link href="{{ url_for('static', filename='css/vendor/bootstrap.min.css') }}" rel="stylesheet">
+    <!-- Bootstrap Icons (本地) -->
+    <link href="{{ url_for('static', filename='css/vendor/bootstrap-icons.css') }}?v=2025072803" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style-enhanced.css') }}" rel="stylesheet">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('main.index') }}">
+                <i class="bi bi-hexagon"></i> {{ _('app.title') }}
+            </a>
+            
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="{{ url_for('main.index') }}">
+                    <i class="bi bi-house"></i> {{ _('buttons.home') }}
+                </a>
+                <a class="nav-link" href="{{ url_for('main.export_dataset') }}">
+                    <i class="bi bi-download"></i> {{ _('buttons.export') }}
+                </a>
+
+                <!-- 语言切换下拉菜单 -->
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-translate"></i> {{ _('buttons.change_language') }}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown">
+                        <li><a class="dropdown-item" href="{{ url_for('main.set_language', language='en') }}">
+                            <i class="bi bi-flag"></i> English
+                        </a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('main.set_language', language='zh') }}">
+                            <i class="bi bi-flag-fill"></i> 中文
+                        </a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容 -->
+    <div class="container">
+        <!-- Flash消息 -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else 'warning' if category == 'warning' else 'success' }} alert-dismissible fade show">
+                        <i class="bi bi-{% if category == 'error' %}exclamation-triangle{% elif category == 'warning' %}exclamation-circle{% else %}check-circle{% endif %}"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="bg-light mt-5 py-4">
+        <div class="container text-center">
+            <small class="text-muted">
+                {{ _('app.title') }} &copy; 2025 | 
+                <span class="text-info">7类蜂格分类</span>：
+                {% for class_key, class_info in cell_classes.items() %}
+                    <span class="badge text-white" style="--bg-color: {{ class_info.border }}; background-color: var(--bg-color);">
+                        {{ class_info.name }}
+                    </span>
+                {% endfor %}
+            </small>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS (本地) -->
+    <script src="{{ url_for('static', filename='js/vendor/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/common.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html> 

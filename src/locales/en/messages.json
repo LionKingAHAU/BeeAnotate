@@ -1,0 +1,196 @@
+{
+  "app": {
+    "title": "Bee Cell Annotation Tool",
+    "subtitle": "Select images to start annotating bee cell types",
+    "description": "A web-based tool for annotating bee cell types in honeycomb images"
+  },
+  "navigation": {
+    "home": "Home",
+    "annotate": "Annotate",
+    "export": "Export",
+    "settings": "Settings"
+  },
+  "buttons": {
+    "start_annotation": "Start Annotation",
+    "continue_annotation": "Continue Annotation",
+    "save": "Save",
+    "save_annotation": "Save Annotation",
+    "clear_all": "Clear All",
+    "undo_last": "Undo Last",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "export": "Export",
+    "upload": "Upload",
+    "next": "Next",
+    "previous": "Previous",
+    "back_to_list": "Back to List",
+    "change_language": "Language",
+    "home": "Home"
+  },
+  "labels": {
+    "images_per_page": "Images per page:",
+    "total_images": "Total {count} images",
+    "annotated_images": "Annotated {count} images",
+    "annotation_count": "Annotations",
+    "current_position": "Items {current}-{end}",
+    "image_position": "Image {current} of {total}",
+    "zoom": "Zoom",
+    "tools": "Tools",
+    "cell_classes": "Cell Classes",
+    "annotation_history": "History",
+    "annotation_tools": "Annotation Tools",
+    "current_image": "Current Image",
+    "select_cell_type": "Select Cell Type:",
+    "category_description": "Category Description:",
+    "select_category_hint": "Select a category to view description",
+    "image_navigation": "Image Navigation:",
+    "return_home": "Return Home",
+    "enhanced_annotation_guide": "Enhanced Annotation Tool Guide:",
+    "annotation_saved_message": "Annotation saved successfully!",
+    "no_annotations": "No annotations yet",
+    "circle": "Circle",
+    "polygon": "Polygon",
+    "points": "points",
+    "unknown_type": "Unknown type",
+    "delete_annotation": "Delete this annotation"
+  },
+  "messages": {
+    "operation_undone": "Operation undone",
+    "operation_redone": "Operation redone",
+    "canvas_init_failed": "Failed to initialize Canvas, please refresh and try again",
+    "image_data_load_failed": "Image data loading failed",
+    "image_load_success": "Image loaded successfully",
+    "image_load_failed": "Image loading failed, please check if file exists",
+    "click_within_image": "Please click within the image area",
+    "annotation_added": "Added {type} annotation",
+    "polygon_start": "Polygon drawing started, double-click or press Esc to finish",
+    "polygon_min_points": "Polygon requires at least 3 points",
+    "polygon_added": "Added {type} polygon annotation",
+    "polygon_cancelled": "Polygon drawing cancelled",
+    "annotation_deleted": "Deleted {type} annotation",
+    "move_mode_tip": "Drag mode: can pan view and move annotations",
+    "circle_mode_tip": "Circle annotation mode: click to add circle annotation",
+    "polygon_mode_tip": "Polygon annotation mode: click to add polygon vertices, double-click to finish",
+    "class_changed": "Class changed from \"{oldClass}\" to \"{newClass}\"",
+    "image_data_invalid": "Image data is invalid",
+    "save_failed": "Save failed",
+    "save_failed_retry": "Save failed, please try again",
+    "no_annotations_to_clear": "No annotations to clear",
+    "clear_all_confirm": "Are you sure you want to clear all {count} annotations? This action cannot be undone.",
+    "all_annotations_cleared": "All annotations cleared",
+    "no_annotations_to_undo": "No annotations to undo",
+    "annotation_undone": "Undone {type} annotation"
+  },
+  "cell_class": {
+    "eggs": {
+      "name": "Eggs",
+      "description": "White oval-shaped, length ≤3mm, vertically attached to cell bottom"
+    },
+    "larvae": {
+      "name": "Larvae", 
+      "description": "White worm-like, length >3mm, visible body segments, open cells"
+    },
+    "capped_brood": {
+      "name": "Capped Brood",
+      "description": "Light yellow wax cap, slightly convex surface, fine texture"
+    },
+    "pollen": {
+      "name": "Pollen",
+      "description": "Colorful granular particles, rich colors (yellow, orange, red, etc.)"
+    },
+    "nectar": {
+      "name": "Nectar",
+      "description": "Transparent liquid, open cells, clear liquid surface visible"
+    },
+    "honey": {
+      "name": "Honey",
+      "description": "Thick wax cap sealed, darker cap color, flat surface"
+    },
+    "other": {
+      "name": "Other",
+      "description": "Empty cells, cells under construction, uncertain categories"
+    },
+    "honeycomb": {
+      "name": "Honeycomb",
+      "description": "Honeycomb structure framework, hexagonal cell outline, cell skeleton"
+    }
+  },
+  "tools": {
+    "circle": "Circle",
+    "polygon": "Polygon",
+    "move": "Move",
+    "zoom_in": "Zoom In",
+    "zoom_out": "Zoom Out",
+    "fit_to_screen": "Fit to Screen",
+    "undo": "Undo",
+    "redo": "Redo",
+    "annotation_list": "Annotation List",
+    "circle_radius": "Circle Radius",
+    "tool_modes": "Tool Modes",
+    "shortcuts": "Shortcuts",
+    "move_mode": "Move Mode (1): Drag to pan view, move annotations",
+    "circle_mode": "Circle Mode (2): Click to add circle annotation",
+    "polygon_mode": "Polygon Mode (3): Click to add vertices, double-click to finish",
+    "scroll_zoom": "Scroll: Zoom image",
+    "right_drag": "Right-click drag: Pan view",
+    "delete_key": "Delete/Backspace: Delete selected annotation",
+    "escape_key": "Esc: Cancel polygon drawing/Cancel selection",
+    "ctrl_z": "Ctrl+Z/Y: Undo/Redo operations",
+    "ctrl_s": "Ctrl+S: Save annotation",
+    "ctrl_arrow": "Ctrl+←/→: Previous/Next image",
+    "tip": "💡 Tip: You can drag to move circle annotations, adjust slider to change tool size. Supports undo operations (Ctrl+Z)"
+  },
+  "messages": {
+    "loading": "Loading...",
+    "saving": "Saving...",
+    "saved": "Saved successfully",
+    "error": "An error occurred",
+    "no_images": "No images found",
+    "image_not_found": "Image not found",
+    "annotation_saved": "Annotation saved successfully",
+    "annotation_deleted": "Annotation deleted",
+    "export_completed": "Export completed",
+    "upload_success": "Upload successful",
+    "invalid_file_type": "Invalid file type",
+    "file_too_large": "File too large",
+    "language_changed": "Language changed successfully",
+    "language_not_supported": "Language not supported"
+  },
+  "validation": {
+    "required_field": "This field is required",
+    "invalid_format": "Invalid format",
+    "min_length": "Minimum length is {min} characters",
+    "max_length": "Maximum length is {max} characters"
+  },
+  "export": {
+    "title": "Export Annotations",
+    "format": "Export Format",
+    "csv_format": "CSV Format",
+    "json_format": "JSON Format",
+    "download": "Download",
+    "select_images": "Select Images",
+    "all_images": "All Images",
+    "annotated_only": "Annotated Only"
+  },
+  "upload": {
+    "title": "Upload Images",
+    "drag_drop": "Drag and drop images here or click to select",
+    "supported_formats": "Supported formats: PNG, JPG, JPEG, BMP, TIF, TIFF",
+    "max_size": "Maximum file size: 16MB"
+  },
+  "pagination": {
+    "showing": "Showing {start}-{end} of {total} items",
+    "page": "Page",
+    "of": "of",
+    "first": "First",
+    "last": "Last"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "theme": "Theme",
+    "auto_save": "Auto Save",
+    "show_grid": "Show Grid",
+    "grid_size": "Grid Size"
+  }
+}

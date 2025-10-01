@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ _('app.title') }}</title>
+    
+    <!-- Bootstrap CSS (本地) -->
+    <link href="{{ url_for('static', filename='css/vendor/bootstrap.min.css') }}" rel="stylesheet">
+    <!-- Bootstrap Icons (本地) -->
+    <link href="{{ url_for('static', filename='css/vendor/bootstrap-icons.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style-enhanced.css') }}" rel="stylesheet">
+    <style>
+        body { margin: 0; padding: 0; overflow: hidden; }
+        .full-layout { height: 100vh; overflow: hidden; }
+        
+        /* 标注列表样式 */
+        .annotation-item {
+            margin-bottom: 8px;
+            padding: 8px;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            background-color: #f8f9fa;
+            transition: all 0.2s ease;
+        }
+        
+        .annotation-item:hover {
+            background-color: #e9ecef;
+            border-color: #adb5bd;
+        }
+        
+        .annotation-item.selected {
+            background-color: #cfe2ff;
+            border-color: #0d6efd;
+        }
+        
+        .annotation-dot {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            box-shadow: 0 0 0 1px rgba(0,0,0,0.1);
+        }
+        
+        .annotation-class-select {
+            border: 1px solid #ced4da;
+        }
+        
+        .annotation-class-select:focus {
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
+        
+        .delete-annotation {
+            width: 28px;
+            height: 28px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body class="full-layout">
+<div class="d-flex" style="gap: 10px; height: 100vh; padding: 10px;">
+    <!-- 工具面板 - 固定宽度 -->
+    <div style="width: 260px; flex-shrink: 0;">
+        <div class="card bg-light h-100">
+            <div class="card-header py-2">
+                <h6 class="card-title mb-0">
+                    <i class="bi bi-tools"></i> {{ _('labels.annotation_tools') }}
+                </h6>
+            </div>
+            <div class="card-body p-2" style="overflow-y: auto; font-size: 0.9rem;">
+                <!-- 当前图像信息 -->
+                <div class="mb-2">
+                    <h6 class="mb-1"><i class="bi bi-image"></i> {{ _('labels.current_image') }}</h6>
+                    <small class="text-muted d-block">{{ image.filename }}</small>
+                    <span class="badge bg-info mt-1">{{ _('labels.annotation_count') }}: <span id="annotationCount">{{ annotations|length }}</span></span>
+                </div>
+
+                <!-- 蜂格类别选择 -->
+                <div class="mb-2">
+                    <label class="form-label"><strong>{{ _('labels.select_cell_type') }}</strong></label>
+                    <div class="row g-2">
+                        {% for class_key, class_info in cell_classes.items() %}
+                        <div class="col-6">
+                            <input type="radio" class="btn-check" name="cellClass" 
+                                   id="{{ class_key }}" value="{{ class_key }}"
+                                   {% if class_key == 'other' %}checked{% endif %}>
+                            <label class="btn btn-outline-primary btn-sm w-100 text-center" 
+                                   for="{{ class_key }}"
+                                   style="--class-color: {{ class_info.border }}; background-color: var(--class-color); font-size: 0.8rem;">
+                                {{ class_info.name }}
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- 类别说明 -->
+                <div class="mb-2">
+                    <label class="form-label"><strong>{{ _('labels.category_description') }}</strong></label>
+                    <div id="classDescription" class="small text-muted p-1 bg-white rounded border">
+                        {{ _('labels.select_category_hint') }}
+                    </div>
+                </div>
+
+                <!-- 操作按钮 -->
+                <div class="mb-2">
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-success" onclick="saveAnnotations()">
+                            <i class="bi bi-save"></i> {{ _('buttons.save_annotation') }}
+                        </button>
+                        <button type="button" class="btn btn-warning" onclick="clearAllAnnotations()">
+                            <i class="bi bi-eraser"></i> {{ _('buttons.clear_all') }}
+                        </button>
+                        <button type="button" class="btn btn-info" onclick="undoLastAnnotation()">
+                            <i class="bi bi-arrow-counterclockwise"></i> {{ _('buttons.undo_last') }}
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 标注列表 -->
+                <div class="mb-2">
+                    <label class="form-label"><strong>{{ _('tools.annotation_list') }}：</strong></label>
+                    <div id="annotationList" class="small" style="max-height: 180px; overflow-y: auto;">
+                        <!-- 动态填充 -->
+                    </div>
+                </div>
+
+                <!-- 图片导航 -->
+                <div class="mb-2">
+                    <label class="form-label"><strong>{{ _('labels.image_navigation') }}</strong></label>
+                    <div class="text-center mb-2">
+                        <small class="text-muted">
+                            {{ _('labels.image_position', current=navigation.current_position, total=navigation.total_images) }}
+                        </small>
+                    </div>
+                    <div class="row g-1">
+                        <div class="col-6">
+                            {% if navigation.prev_image %}
+                            <a href="{{ url_for('main.annotate', image_id=navigation.prev_image.id) }}" 
+                               class="btn btn-outline-primary btn-sm w-100" title="{{ _('buttons.previous') }}：{{ navigation.prev_image.filename }}">
+                                <i class="bi bi-chevron-left"></i> {{ _('buttons.previous') }}
+                            </a>
+                            {% else %}
+                            <button class="btn btn-outline-secondary btn-sm w-100" disabled>
+                                <i class="bi bi-chevron-left"></i> {{ _('buttons.previous') }}
+                            </button>
+                            {% endif %}
+                        </div>
+                        <div class="col-6">
+                            {% if navigation.next_image %}
+                            <a href="{{ url_for('main.annotate', image_id=navigation.next_image.id) }}" 
+                               class="btn btn-outline-primary btn-sm w-100" title="{{ _('buttons.next') }}：{{ navigation.next_image.filename }}">
+                                {{ _('buttons.next') }} <i class="bi bi-chevron-right"></i>
+                            </a>
+                            {% else %}
+                            <button class="btn btn-outline-secondary btn-sm w-100" disabled>
+                                {{ _('buttons.next') }} <i class="bi bi-chevron-right"></i>
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 返回按钮 -->
+                <div class="d-grid">
+                    <a href="{{ url_for('main.index') }}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> {{ _('labels.return_home') }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 图像显示区域 - 占用剩余空间 -->
+    <div style="flex: 1; min-width: 0;">
+        <div class="card h-100">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-cursor"></i> {{ _('app.title') }} by Sufy
+                    </h5>
+                    
+                    <!-- 工具栏 -->
+                    <div class="btn-toolbar" role="toolbar">
+                        <!-- 标注工具 -->
+                        <div class="btn-group me-2" role="group">
+                            <button type="button" class="btn btn-sm btn-outline-primary tool-btn active" data-tool="move" title="{{ _('tools.move_mode') }}">
+                                <i class="bi bi-hand-index"></i> {{ _('tools.move') }}
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-primary tool-btn" data-tool="circle" title="{{ _('tools.circle_mode') }}">
+                                <i class="bi bi-circle"></i> {{ _('tools.circle') }}
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-primary tool-btn" data-tool="polygon" title="{{ _('tools.polygon_mode') }}">
+                                <i class="bi bi-pentagon"></i> {{ _('tools.polygon') }}
+                            </button>
+                        </div>
+                        
+                        <!-- 视图控制 -->
+                        <div class="btn-group me-2" role="group">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="zoomIn" title="{{ _('tools.zoom_in') }}">
+                                <i class="bi bi-zoom-in"></i>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="zoomOut" title="{{ _('tools.zoom_out') }}">
+                                <i class="bi bi-zoom-out"></i>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="zoomFit" title="{{ _('tools.fit_to_screen') }}">
+                                <i class="bi bi-arrows-fullscreen"></i>
+                            </button>
+                        </div>
+                        
+                        <small class="text-muted align-self-center">
+                            {{ _('labels.zoom') }}: <span id="zoomValue">100%</span>
+                        </small>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 工具参数控制 -->
+            <div class="card-body pb-2">
+                <!-- 圆形半径控制 -->
+                <div class="row align-items-center mb-2" id="radiusControl">
+                    <div class="col-auto">
+                        <label for="radiusSlider" class="form-label mb-0 small">{{ _('tools.circle_radius') }}:</label>
+                    </div>
+                    <div class="col">
+                        <input type="range" class="form-range" id="radiusSlider" 
+                               min="5" max="100" value="20" step="1">
+                    </div>
+                    <div class="col-auto">
+                        <span id="radiusValue" class="badge bg-secondary">20</span> px
+                    </div>
+                </div>
+
+            </div>
+            
+            <div class="card-body pt-0" style="height: calc(100vh - 200px);">
+                <!-- 图像容器 - 占满可用空间 -->
+                <div class="position-relative border canvas-container h-100" 
+                     style="overflow: hidden;">
+                    <!-- 背景Canvas -->
+                    <canvas id="bgCanvas" class="position-absolute" style="top: 0; left: 0; z-index: 1;"></canvas>
+                    <!-- 标注Canvas -->
+                    <canvas id="annotationCanvas" class="position-absolute" style="top: 0; left: 0; z-index: 2; cursor: crosshair;"></canvas>
+                </div>
+                
+                <!-- 操作提示 -->
+                <div class="mt-3">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        <strong>{{ _('labels.enhanced_annotation_guide') }}</strong>
+                        <div class="row mt-2">
+                            <div class="col-md-6">
+                                <h6>{{ _('tools.tool_modes') }}：</h6>
+                                <ul class="small mb-2">
+                                    <li><strong>{{ _('tools.move_mode') }}</strong></li>
+                                    <li><strong>{{ _('tools.circle_mode') }}</strong></li>
+                                    <li><strong>{{ _('tools.polygon_mode') }}</strong></li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>{{ _('tools.shortcuts') }}：</h6>
+                                <ul class="small mb-2">
+                                    <li><strong>{{ _('tools.scroll_zoom') }}</strong></li>
+                                    <li><strong>{{ _('tools.right_drag') }}</strong></li>
+                                    <li><strong>{{ _('tools.delete_key') }}</strong></li>
+                                    <li><strong>{{ _('tools.escape_key') }}</strong></li>
+                                    <li><strong>{{ _('tools.ctrl_z') }}</strong></li>
+                                    <li><strong>{{ _('tools.ctrl_s') }}</strong></li>
+                                    <li><strong>{{ _('tools.ctrl_arrow') }}</strong></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="text-muted small">
+                            {{ _('tools.tip') }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- {{ _('buttons.save') }}成功模态框 -->
+<div class="modal fade" id="saveSuccessModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-check-circle"></i> {{ _('buttons.save') }}成功
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p id="saveMessage">{{ _('labels.annotation_saved_message') }}</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ _('labels.continue_annotation') }}</button>
+                <a href="{{ url_for('main.index') }}" class="btn btn-primary">{{ _('labels.return_home') }}</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS (本地) -->
+<script src="{{ url_for('static', filename='js/vendor/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/common.js') }}"></script>
+<!-- 动态数据 -->
+<script type="application/json" id="imageData">{{ {
+    'id': image.id,
+    'path': '/' + image.path,
+    'filename': image.filename
+} | tojson }}</script>
+<script type="application/json" id="cellClasses">{{ cell_classes | tojson }}</script>
+<script type="application/json" id="existingAnnotations">{{ annotations | tojson }}</script>
+<script type="application/json" id="navigationData">{{ {
+    'prev_image_id': navigation.prev_image.id if navigation.prev_image else None,
+    'next_image_id': navigation.next_image.id if navigation.next_image else None,
+    'current_position': navigation.current_position,
+    'total_images': navigation.total_images
+} | tojson }}</script>
+<script type="application/json" id="i18nData">{{ {
+    'no_annotations': _('labels.no_annotations'),
+    'circle': _('labels.circle'),
+    'polygon': _('labels.polygon'),
+    'points': _('labels.points'),
+    'unknown_type': _('labels.unknown_type'),
+    'delete_annotation': _('labels.delete_annotation'),
+    'operation_undone': _('messages.operation_undone'),
+    'operation_redone': _('messages.operation_redone'),
+    'canvas_init_failed': _('messages.canvas_init_failed'),
+    'image_data_load_failed': _('messages.image_data_load_failed'),
+    'image_load_success': _('messages.image_load_success'),
+    'image_load_failed': _('messages.image_load_failed'),
+    'click_within_image': _('messages.click_within_image'),
+    'annotation_added': _('messages.annotation_added'),
+    'polygon_start': _('messages.polygon_start'),
+    'polygon_min_points': _('messages.polygon_min_points'),
+    'polygon_added': _('messages.polygon_added'),
+    'polygon_cancelled': _('messages.polygon_cancelled'),
+    'annotation_deleted': _('messages.annotation_deleted'),
+    'move_mode_tip': _('messages.move_mode_tip'),
+    'circle_mode_tip': _('messages.circle_mode_tip'),
+    'polygon_mode_tip': _('messages.polygon_mode_tip'),
+    'class_changed': _('messages.class_changed'),
+    'image_data_invalid': _('messages.image_data_invalid'),
+    'save_failed': _('messages.save_failed'),
+    'save_failed_retry': _('messages.save_failed_retry'),
+    'no_annotations_to_clear': _('messages.no_annotations_to_clear'),
+    'clear_all_confirm': _('messages.clear_all_confirm'),
+    'all_annotations_cleared': _('messages.all_annotations_cleared'),
+    'no_annotations_to_undo': _('messages.no_annotations_to_undo'),
+    'annotation_undone': _('messages.annotation_undone')
+} | tojson }}</script>
+
+<!-- JavaScript文件 -->
+<script src="{{ url_for('static', filename='js/annotate-enhanced.js') }}"></script>
+<script src="{{ url_for('static', filename='js/annotate.js') }}"></script>
+<script>
+// 初始化数据
+window.imageData = JSON.parse(document.getElementById('imageData').textContent);
+window.cellClasses = JSON.parse(document.getElementById('cellClasses').textContent);
+window.existingAnnotations = JSON.parse(document.getElementById('existingAnnotations').textContent);
+
+// 页面加载完成后初始化
+document.addEventListener('DOMContentLoaded', function() {
+    // 初始化增强版标注工具
+    AnnotationTool.init();
+    
+    // 获取导航数据
+    const navigationData = JSON.parse(document.getElementById('navigationData').textContent);
+    
+    // 添加键盘导航支持
+    document.addEventListener('keydown', function(e) {
+        // Ctrl + 左箭头键 - {{ _('buttons.previous') }}
+        if (e.key === 'ArrowLeft' && e.ctrlKey) {
+            if (navigationData.prev_image_id) {
+                window.location.href = `/annotate/${navigationData.prev_image_id}`;
+            }
+            e.preventDefault();
+        }
+        // Ctrl + 右箭头键 - {{ _('buttons.next') }}
+        else if (e.key === 'ArrowRight' && e.ctrlKey) {
+            if (navigationData.next_image_id) {
+                window.location.href = `/annotate/${navigationData.next_image_id}`;
+            }
+            e.preventDefault();
+        }
+    });
+});
+</script>
+</body>
+</html> 

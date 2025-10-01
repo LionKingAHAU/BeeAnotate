@@ -1,0 +1,196 @@
+{
+  "app": {
+    "title": "蜂格标注工具",
+    "subtitle": "选择图像开始标注蜂格类型",
+    "description": "基于Web的蜂窝细胞类型标注工具"
+  },
+  "navigation": {
+    "home": "首页",
+    "annotate": "标注",
+    "export": "导出",
+    "settings": "设置"
+  },
+  "buttons": {
+    "start_annotation": "开始标注",
+    "continue_annotation": "继续标注",
+    "save": "保存",
+    "save_annotation": "保存标注",
+    "clear_all": "清空所有",
+    "undo_last": "撤销上一个",
+    "cancel": "取消",
+    "delete": "删除",
+    "export": "导出",
+    "upload": "上传",
+    "next": "下一张",
+    "previous": "上一张",
+    "back_to_list": "返回列表",
+    "change_language": "语言",
+    "home": "首页"
+  },
+  "labels": {
+    "images_per_page": "每页显示：",
+    "total_images": "共 {count} 张图像",
+    "annotated_images": "已标注 {count} 张",
+    "annotation_count": "标注数量",
+    "current_position": "第 {current}-{end} 项",
+    "image_position": "第 {current} 张，共 {total} 张",
+    "zoom": "缩放",
+    "tools": "工具",
+    "cell_classes": "蜂格类型",
+    "annotation_history": "操作历史",
+    "annotation_tools": "标注工具",
+    "current_image": "当前图像",
+    "select_cell_type": "选择蜂格类别：",
+    "category_description": "类别说明：",
+    "select_category_hint": "选择类别查看说明",
+    "image_navigation": "图片导航：",
+    "return_home": "返回首页",
+    "enhanced_annotation_guide": "增强版标注工具操作说明：",
+    "annotation_saved_message": "标注已成功保存！",
+    "no_annotations": "暂无标注",
+    "circle": "圆形",
+    "polygon": "多边形",
+    "points": "点",
+    "unknown_type": "未知类型",
+    "delete_annotation": "删除此标注"
+  },
+  "messages": {
+    "operation_undone": "已撤销操作",
+    "operation_redone": "已重做操作",
+    "canvas_init_failed": "无法初始化Canvas，请刷新页面重试",
+    "image_data_load_failed": "图像数据加载失败",
+    "image_load_success": "图像加载成功",
+    "image_load_failed": "图像加载失败，请检查文件是否存在",
+    "click_within_image": "请在图像范围内点击",
+    "annotation_added": "已添加{type}标注",
+    "polygon_start": "多边形绘制开始，双击或按Esc完成",
+    "polygon_min_points": "多边形至少需要3个点",
+    "polygon_added": "已添加{type}多边形标注",
+    "polygon_cancelled": "多边形绘制已取消",
+    "annotation_deleted": "已删除{type}标注",
+    "move_mode_tip": "拖拽模式：可平移视图和移动标注",
+    "circle_mode_tip": "圆形标注模式：点击添加圆形标注",
+    "polygon_mode_tip": "多边形标注模式：点击添加多边形顶点，双击完成",
+    "class_changed": "类别已从\"{oldClass}\"更改为\"{newClass}\"",
+    "image_data_invalid": "图像数据无效",
+    "save_failed": "保存失败",
+    "save_failed_retry": "保存失败，请重试",
+    "no_annotations_to_clear": "没有需要清空的标注",
+    "clear_all_confirm": "确定要清空所有 {count} 个标注吗？此操作无法撤销。",
+    "all_annotations_cleared": "已清空所有标注",
+    "no_annotations_to_undo": "没有可撤销的标注",
+    "annotation_undone": "已撤销{type}标注"
+  },
+  "cell_class": {
+    "eggs": {
+      "name": "卵",
+      "description": "白色椭圆形，长度≤3mm，垂直贴附在蜂格底部"
+    },
+    "larvae": {
+      "name": "幼虫",
+      "description": "白色蠕虫状，长度>3mm，体节可见，蜂格开放"
+    },
+    "capped_brood": {
+      "name": "封盖子",
+      "description": "淡黄色蜡盖，表面略凸，纹理细腻"
+    },
+    "pollen": {
+      "name": "花粉",
+      "description": "多彩颗粒状，颜色丰富（黄、橙、红等）"
+    },
+    "nectar": {
+      "name": "花蜜",
+      "description": "透明液体，蜂格开放，液面清晰可见"
+    },
+    "honey": {
+      "name": "蜂蜜",
+      "description": "厚重蜡盖封存，蜡盖颜色较深，表面平整"
+    },
+    "other": {
+      "name": "其他",
+      "description": "空蜂格、正在建造的蜂格、不确定类别"
+    },
+    "honeycomb": {
+      "name": "蜂巢",
+      "description": "蜂巢结构框架、六边形蜂格轮廓、蜂房骨架"
+    }
+  },
+  "tools": {
+    "circle": "圆形",
+    "polygon": "多边形",
+    "move": "移动",
+    "zoom_in": "放大",
+    "zoom_out": "缩小",
+    "fit_to_screen": "适应屏幕",
+    "undo": "撤销",
+    "redo": "重做",
+    "annotation_list": "标注列表",
+    "circle_radius": "圆形半径",
+    "tool_modes": "工具模式",
+    "shortcuts": "快捷操作",
+    "move_mode": "移动模式 (1): 拖拽平移视图、移动标注",
+    "circle_mode": "圆形模式 (2): 点击添加圆形标注",
+    "polygon_mode": "多边形模式 (3): 点击添加顶点，双击完成",
+    "scroll_zoom": "滚轮: 缩放图像",
+    "right_drag": "右键拖拽: 平移视图",
+    "delete_key": "Delete/Backspace: 删除选中标注",
+    "escape_key": "Esc: 取消多边形绘制/取消选择",
+    "ctrl_z": "Ctrl+Z/Y: 撤销/重做操作",
+    "ctrl_s": "Ctrl+S: 保存标注",
+    "ctrl_arrow": "Ctrl+←/→: 上一张/下一张图片",
+    "tip": "💡 提示：可以拖拽移动圆形标注，调整滑块改变工具大小。支持撤销操作（Ctrl+Z）"
+  },
+  "messages": {
+    "loading": "加载中...",
+    "saving": "保存中...",
+    "saved": "保存成功",
+    "error": "发生错误",
+    "no_images": "未找到图像",
+    "image_not_found": "图像不存在",
+    "annotation_saved": "标注保存成功",
+    "annotation_deleted": "标注已删除",
+    "export_completed": "导出完成",
+    "upload_success": "上传成功",
+    "invalid_file_type": "无效的文件类型",
+    "file_too_large": "文件过大",
+    "language_changed": "语言切换成功",
+    "language_not_supported": "不支持的语言"
+  },
+  "validation": {
+    "required_field": "此字段为必填项",
+    "invalid_format": "格式无效",
+    "min_length": "最小长度为 {min} 个字符",
+    "max_length": "最大长度为 {max} 个字符"
+  },
+  "export": {
+    "title": "导出标注",
+    "format": "导出格式",
+    "csv_format": "CSV格式",
+    "json_format": "JSON格式",
+    "download": "下载",
+    "select_images": "选择图像",
+    "all_images": "所有图像",
+    "annotated_only": "仅已标注"
+  },
+  "upload": {
+    "title": "上传图像",
+    "drag_drop": "拖拽图像到此处或点击选择",
+    "supported_formats": "支持格式：PNG、JPG、JPEG、BMP、TIF、TIFF",
+    "max_size": "最大文件大小：16MB"
+  },
+  "pagination": {
+    "showing": "第 {start}-{end} 项，共 {total} 项",
+    "page": "第",
+    "of": "页，共",
+    "first": "首页",
+    "last": "末页"
+  },
+  "settings": {
+    "title": "设置",
+    "language": "语言",
+    "theme": "主题",
+    "auto_save": "自动保存",
+    "show_grid": "显示网格",
+    "grid_size": "网格大小"
+  }
+}

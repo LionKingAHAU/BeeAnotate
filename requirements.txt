@@ -1,0 +1,19 @@
+# Bee Cell Annotation Tool Dependencies
+# Flask Web Framework and Related Dependencies
+Flask>=2.0.0
+Werkzeug>=2.0.0
+
+# For file handling and secure filenames
+secure-filename
+
+# Standard library dependencies (usually included in Python)
+# os, json, csv, shutil, datetime, logging are Python standard libraries
+
+# Optional: for better logging
+# colorlog
+
+# Optional: for image processing
+# Pillow>=8.0.0
+
+# Optional: for better development experience
+# python-dotenv

@@ -1,0 +1,241 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- 页面标题 -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="display-6">🐝 {{ _('app.title') }}</h1>
+                    <p class="text-muted">{{ _('app.subtitle') }}</p>
+                </div>
+                                 <div class="text-end">
+                     <div class="badge bg-primary fs-6">{{ _('labels.total_images', count=pagination.total_items) }}</div>
+                     <div class="badge bg-success fs-6">{{ _('labels.annotated_images', count=annotated_count) }}</div>
+                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 分页和显示控制 -->
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <div class="d-flex align-items-center gap-3">
+                <label class="form-label mb-0">{{ _('labels.images_per_page') }}</label>
+                <select class="form-select form-select-sm" style="width: auto;" onchange="changePageSize(this.value)">
+                    <option value="10" {{ 'selected' if per_page == 10 }}>10</option>
+                    <option value="20" {{ 'selected' if per_page == 20 }}>20</option>
+                    <option value="30" {{ 'selected' if per_page == 30 }}>30</option>
+                    <option value="50" {{ 'selected' if per_page == 50 }}>50</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-md-6 text-end">
+                         <small class="text-muted">
+                 {{ _('labels.current_position', current=pagination.start_index, end=pagination.end_index) }}，
+                 {{ _('labels.total_images', count=pagination.total_items) }}
+             </small>
+        </div>
+    </div>
+
+    <!-- 图像网格 -->
+    <div class="row g-3" id="imageGrid">
+        {% for image in images %}
+        <div class="col-lg-2 col-md-3 col-sm-4 col-6">
+            <div class="card h-100 shadow-sm image-card" data-image-id="{{ image.id }}">
+                <div class="position-relative">
+                                         <!-- 优化版懒加载图像 -->
+                     <img class="card-img-top lazy-image"
+                          data-src="/{{ image.path }}"
+                          src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjhmOWZhIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzY2NzU4NSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPuWKoOi9veS4rS4uLjwvdGV4dD48L3N2Zz4="
+                          alt="{{ image.filename }}"
+                          style="height: 200px; object-fit: cover; background: #f8f9fa;"
+                          loading="lazy">
+                    
+                    <!-- 标注状态标识 -->
+                    {% if image.annotation_count > 0 %}
+                    <span class="position-absolute top-0 end-0 m-2">
+                        <span class="badge bg-success">{{ image.annotation_count }}</span>
+                    </span>
+                    {% endif %}
+                </div>
+                
+                <div class="card-body p-2">
+                    <h6 class="card-title text-truncate mb-1" title="{{ image.filename }}">
+                        {{ image.filename }}
+                    </h6>
+                    <div class="d-grid">
+                        <a href="{{ url_for('main.annotate', image_id=image.id) }}" 
+                           class="btn btn-primary btn-sm">
+                            {% if image.annotation_count > 0 %}
+                                <i class="bi bi-pencil-square"></i> {{ _('buttons.continue_annotation') }}
+                            {% else %}
+                                <i class="bi bi-plus-circle"></i> {{ _('buttons.start_annotation') }}
+                            {% endif %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- 分页导航 -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <nav aria-label="图像分页">
+                <ul class="pagination justify-content-center">
+                                         <!-- 上一页 -->
+                     {% if pagination.has_prev %}
+                     <li class="page-item">
+                         <a class="page-link" href="{{ url_for('main.index', page=pagination.prev_page, per_page=per_page) }}">
+                             <i class="bi bi-chevron-left"></i> 上一页
+                         </a>
+                     </li>
+                     {% else %}
+                     <li class="page-item disabled">
+                         <span class="page-link"><i class="bi bi-chevron-left"></i> 上一页</span>
+                     </li>
+                     {% endif %}
+
+                    <!-- 页码 -->
+                                         {% set start_page = [1, pagination.page - 2] | max %}
+                     {% set end_page = [pagination.total_pages, pagination.page + 2] | min %}
+                     
+                     {% if start_page > 1 %}
+                     <li class="page-item">
+                         <a class="page-link" href="{{ url_for('main.index', page=1, per_page=per_page) }}">1</a>
+                     </li>
+                     {% if start_page > 2 %}
+                     <li class="page-item disabled">
+                         <span class="page-link">...</span>
+                     </li>
+                     {% endif %}
+                     {% endif %}
+
+                     {% for page_num in range(start_page, end_page + 1) %}
+                     {% if page_num == pagination.page %}
+                     <li class="page-item active">
+                         <span class="page-link">{{ page_num }}</span>
+                     </li>
+                     {% else %}
+                     <li class="page-item">
+                         <a class="page-link" href="{{ url_for('main.index', page=page_num, per_page=per_page) }}">{{ page_num }}</a>
+                     </li>
+                     {% endif %}
+                     {% endfor %}
+
+                     {% if end_page < pagination.total_pages %}
+                     {% if end_page < pagination.total_pages - 1 %}
+                     <li class="page-item disabled">
+                         <span class="page-link">...</span>
+                     </li>
+                     {% endif %}
+                     <li class="page-item">
+                         <a class="page-link" href="{{ url_for('main.index', page=pagination.total_pages, per_page=per_page) }}">{{ pagination.total_pages }}</a>
+                     </li>
+                     {% endif %}
+
+                                         <!-- 下一页 -->
+                     {% if pagination.has_next %}
+                     <li class="page-item">
+                         <a class="page-link" href="{{ url_for('main.index', page=pagination.next_page, per_page=per_page) }}">
+                             下一页 <i class="bi bi-chevron-right"></i>
+                         </a>
+                     </li>
+                     {% else %}
+                     <li class="page-item disabled">
+                         <span class="page-link">下一页 <i class="bi bi-chevron-right"></i></span>
+                     </li>
+                     {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+
+
+// 更改每页显示数量
+function changePageSize(size) {
+    const url = new URL(window.location);
+    url.searchParams.set('per_page', size);
+    url.searchParams.set('page', '1'); // 重置到第一页
+    window.location.href = url.toString();
+}
+
+// 简化的懒加载
+function setupSimpleLazyLoading() {
+    const lazyImages = document.querySelectorAll('.lazy-image');
+    
+    if ('IntersectionObserver' in window) {
+        const imageObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    img.src = img.dataset.src;
+                    img.classList.remove('lazy-image');
+                    imageObserver.unobserve(img);
+                }
+            });
+        }, { rootMargin: '50px' });
+        
+        lazyImages.forEach(img => imageObserver.observe(img));
+    } else {
+        // fallback：直接加载
+        lazyImages.forEach(img => {
+            img.src = img.dataset.src;
+            img.classList.remove('lazy-image');
+        });
+    }
+}
+
+// 页面加载完成后初始化
+document.addEventListener('DOMContentLoaded', function() {
+    setupSimpleLazyLoading();
+    
+    // 添加图像卡片悬停效果
+    document.querySelectorAll('.image-card').forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-2px)';
+            this.style.transition = 'transform 0.2s ease';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+    
+    // 性能监控
+    console.log('页面加载完成，图像数量:', document.querySelectorAll('.image-card').length);
+});
+</script>
+
+<style>
+.fade-in {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.image-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.image-card:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
+}
+
+.spinner-border {
+    width: 2rem;
+    height: 2rem;
+}
+</style>
+{% endblock %} 
